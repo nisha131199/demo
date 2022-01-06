@@ -20,13 +20,13 @@ class Controller{
     }
 
     @PostMapping("/user/register")
-    fun insert(@RequestBody user: UserModel): HashMap<String, Any> {
-        return User().register(user)
+    fun insert(@RequestBody data: DataModel): HashMap<String, Any> {
+        return User().register(data)
     }
 
     @PostMapping("/user/modify")
-    fun update(@RequestBody user: UserModel): HashMap<String, Any> {
-        return User().update(user)
+    fun update(@RequestBody data: DataModel): HashMap<String, Any> {
+        return User().update(data)
     }
 
     @PostMapping("/user/signIn")
@@ -37,5 +37,15 @@ class Controller{
     @DeleteMapping("/user/remove")
     fun delete(@RequestParam(value = "uid", defaultValue = "")uid:Int): HashMap<String, Any> {
         return User().delete(uid)
+    }
+
+    @PostMapping("/user/create_profile")
+    fun createProfile(@RequestBody image: String): String{
+        return "uploaded"
+    }
+
+    @PostMapping("/user/update_profile")
+    fun updateProfile(@RequestBody image: String): String{
+        return "updated"
     }
 }

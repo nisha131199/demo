@@ -5,20 +5,18 @@ import java.sql.DriverManager
 import java.util.Properties
 
 class MySqlDb {
+    private lateinit var conn: Connection
 
     fun getConnection(): Connection {
-        lateinit var conn: Connection
         val properties = Properties()
-        properties["user"] = "root"
-        properties["password"] = "xyz"
+        properties["user"] = "u"
+        properties["password"] = "p"
 
-        val dbname = "userData"
+        val dbname = "user"
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance()
 
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306$dbname",
-                    properties)
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/$dbname", properties)
         } catch (e: Exception) {
             println(e.message)
         }
