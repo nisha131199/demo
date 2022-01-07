@@ -11,28 +11,21 @@ class User {
     private val connection = db.connection()
     private val statement = connection.createStatement() as Statement
 
-    private lateinit var query: String
-
     private fun isReadyToRegister(data: DataModel): String {
-        var msg = "new user"
-
-        var result: ResultSet
+        val msg = "new user"
 
         if (data.password.isNotBlank() && data.confirm_password.isNotBlank() && data.password != data.confirm_password)
-            msg = "Those passwords didn't matched"
+            return "Those passwords didn't matched"
 
         if (data.email.isNotBlank()) {
-            query = "select email from user where email='${data.email}'"
-            result = statement.executeQuery(query)
-            if (result.next())
-                msg = "This email is already registered here"
+            if (statement.execute("select email from user where email='${data.email}'"))
+                return "This email is already registered here"
         }
 
         if (data.user_name.isNotBlank()) {
-            query = "select user_name from user where user_name='${data.user_name}'"
-            result = statement.executeQuery(query)
-            if (result.next())
-                msg = "username already taken"
+            val b = statement.execute("select user_name from user where user_name='${data.user_name}'")
+            if (b)
+                return "username already taken"
         }
         return msg
     }
@@ -41,24 +34,19 @@ class User {
         try {
             val msg = isReadyToRegister(data)
 
-            if (msg.equals("new user")) {
-                val firstName = data.first_name?.trim()
-                val middleName = data.middle_name?.trim()
-                val lastName = data.last_name?.trim()
-                val email = data.email.trim()
-                val phoneNumber = data.phone_number?.trim()
-                val userName = data.user_name.trim()
-                val password = data.password.trim()
-                query = "insert into user (first_name, middle_name, last_name, email, phone_number, user_name, password) " +
-                        "values('$firstName','$middleName','$lastName'," +
-                        "'$email','$phoneNumber','$userName','$password')"
+            if (msg == "new user") {
 
-                if (statement.execute(query)) {
+                if (statement.execute
+                        ("insert into user (first_name, middle_name, last_name, email, phone_number, user_name, password) " +
+                                "values('${data.first_name?.trim()}','${data.middle_name?.trim()}','${data.last_name?.trim()}'," +
+                                "'${data.email.trim()}','${data.phone_number?.trim()}','${data.user_name.trim()}'," +
+                                "'${data.password.trim()}')")) {
+
                     res["status"] = true
                     res["message"] = "user have been added successfully."
                 }else{
-                    res["status"] = true
-                    res["message"] = "user not added."
+                    res["status"] = false
+                    res["message"] = "error while adding new user."
                 }
 
             } else {
@@ -74,13 +62,11 @@ class User {
 
     fun update(data: DataModel): HashMap<String, Any> {
         try {
-            //val timeStamp= SimpleDateFormat("YYYY-MM-DD hh:mm:ss").format(Date())
-            query = "update user set first_name='${data.first_name}',middle_name='${data.middle_name}'," +
-                    "last_name='${data.last_name}',email='${data.email}',phone_number='${data.phone_number}'," +
-                    "user_name='${data.user_name}',password='${data.password}'"+
-                    "where id=${data.id}"
+            if (statement.executeUpdate("update user set first_name='${data.first_name}',middle_name='${data.middle_name}'," +
+                            "last_name='${data.last_name}',email='${data.email}',phone_number='${data.phone_number}'," +
+                            "user_name='${data.user_name}',password='${data.password}'"+
+                            "where id=${data.id}")>0) {
 
-            if (statement.executeUpdate(query) > 0) {
                 res["status"] = true
                 res["message"] = "details updated."
             }
@@ -93,10 +79,12 @@ class User {
 
     fun delete(uid:Int): HashMap<String, Any> {
         try {
-            query = "delete from user where id=${uid}"
-            if (statement.executeUpdate(query) > 0) {
+            if (statement.executeUpdate("delete from user where id=${uid}")>0) {
                 res["status"] = true
                 res["message"] = "deleted Successfully."
+            }else{
+                res["status"] = false
+                res["message"] = "no data found in this id"
             }
         } catch (e: Exception) {
             res["status"] = false
@@ -107,22 +95,19 @@ class User {
 
     fun login(login:LoginModel): HashMap<String, Any> {
         try {
-            query = "select * from user where user_name='${login.userName}' and password='${login.password}'"
-            val result=statement.executeQuery(query)
+            val result=statement.executeQuery("select * from user where user_name='${login.userName}' and password='${login.password}'")
             if (result.next()) {
                 val data=HashMap<String,Any>()
-                data["id"]=result.getString(1)
-                /*data["firstName"]=result.getString(2)
-                data["middleName"]=result.getString(3)
-                data["lastName"]=result.getString(4)*/
+
                 val firstName=result.getString(2)
                 val middleName=result.getString(3)
                 val lastName=result.getString(4)
-                data["Name"]="$firstName $middleName $lastName"
-                data["email"]=result.getString(5)
+
                 data["phone_number"]=result.getString(6)
                 data["user_name"]=result.getString(7)
-                data["password"]=result.getString(8)
+                data["email"]=result.getString(5)
+                data["name"]="$firstName $middleName $lastName"
+                data["id"]=result.getString(1)
                 res["status"] = true
                 res["message"] = "Successfully SignIn"
                 res["data"]=data

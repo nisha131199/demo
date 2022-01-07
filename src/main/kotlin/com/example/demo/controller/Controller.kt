@@ -29,7 +29,7 @@ class Controller{
         return User().update(data)
     }
 
-    @PostMapping("/user/signIn")
+    @PostMapping("/user/login")
     fun login(@RequestBody credentials: LoginModel): HashMap<String, Any> {
         return User().login(credentials)
     }
@@ -39,13 +39,4 @@ class Controller{
         return User().delete(uid)
     }
 
-    @PostMapping("/user/create_profile")
-    fun createProfile(@RequestBody image: String): String{
-        return "uploaded"
-    }
-
-    @PostMapping("/user/update_profile")
-    fun updateProfile(@RequestBody image: String): String{
-        return "updated"
-    }
 }
