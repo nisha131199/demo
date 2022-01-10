@@ -18,13 +18,14 @@ class User {
             return "Those passwords didn't matched"
 
         if (data.email.isNotBlank()) {
-            if (statement.execute("select email from user where email='${data.email}'"))
+            val e = statement.executeQuery("select email from user where email='${data.email}'")
+            if (e.next())
                 return "This email is already registered here"
         }
 
         if (data.user_name.isNotBlank()) {
-            val b = statement.execute("select user_name from user where user_name='${data.user_name}'")
-            if (b)
+            val e = statement.executeQuery("select user_name from user where user_name='${data.user_name}'")
+            if (e.next())
                 return "username already taken"
         }
         return msg
@@ -36,11 +37,7 @@ class User {
 
             if (msg == "new user") {
 
-                if (statement.execute
-                        ("insert into user (first_name, middle_name, last_name, email, phone_number, user_name, password) " +
-                                "values('${data.first_name?.trim()}','${data.middle_name?.trim()}','${data.last_name?.trim()}'," +
-                                "'${data.email.trim()}','${data.phone_number?.trim()}','${data.user_name.trim()}'," +
-                                "'${data.password.trim()}')")) {
+                if (statement.executeUpdate("insert into user (first_name, middle_name, last_name, email, phone_number, user_name, password) values('${data.first_name?.trim()}','${data.middle_name?.trim()}','${data.last_name?.trim()}','${data.email.trim()}','${data.phone_number?.trim()}','${data.user_name.trim()}','${data.password.trim()}')")>0) {
 
                     res["status"] = true
                     res["message"] = "user have been added successfully."
