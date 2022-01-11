@@ -1,6 +1,10 @@
 package com.example.demo.user
 
+import com.example.demo.helper.UploadHelper
 import com.example.demo.user.database.MySQLite
+import org.springframework.core.io.ClassPathResource
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.sql.ResultSet
 import java.sql.Statement
 import kotlin.collections.HashMap
@@ -117,6 +121,57 @@ class User {
             res["message"] = "Error:${e.message}"
         }
         return res
+    }
+
+    fun uploadFile(file: MultipartFile): HashMap<String,Any>{
+        val statement = db.connectionFile().createStatement()
+
+        val response: HashMap<String,Any> = HashMap()
+        response["content-type"] = file.contentType.toString()
+
+        if(file.isEmpty) {
+            response["status"] = false
+            response["message"] = "No file found!"
+        }
+
+        else {
+            try {
+                val d = file.contentType?.split("/")
+                if(d != null)
+                    if(UploadHelper(d[0]).save(file)){
+                        val v = ServletUriComponentsBuilder.fromCurrentContextPath()
+                                .path(ClassPathResource("${d[0]}/").path)
+                                .path(file.originalFilename.toString())
+                                .toUriString()
+
+                        val result = statement.executeQuery("select url from user_file where url='${v}'")
+                        if(!result.next()){
+                            statement.execute("insert into user_file values('${file.originalFilename}','${v}')")
+                        }
+
+                        response[d[0]] = v
+                        response["status"] = true
+                        response["message"] = "${d[0]} uploaded successfully!"
+
+                    }
+            }catch (e: Exception){
+                response["status"] = false
+                response["message"] = e.message.toString()
+            }
+        }
+
+        return response
+    }
+
+    fun getAllFiles(): HashMap<String,Any>{
+        val statement = db.connectionFile().createStatement()
+        val response: HashMap<String,Any> = HashMap()
+        val result = statement.executeQuery("select * from user_file")
+        while(result.next()){
+            response[result.getString(1)] = result.getString(2)
+        }
+
+        return response
     }
 }
 

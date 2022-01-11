@@ -48,34 +48,11 @@ class Controller{
 
     @PostMapping("/uploadFile")
     fun upload(@RequestParam("file") file: MultipartFile): HashMap<String,Any>{
-        response = HashMap()
-        response["content-type"] = file.contentType.toString()
+        return User().uploadFile(file)
+    }
 
-        if(file.isEmpty) {
-            response["status"] = false
-            response["message"] = "No file found!"
-        }
-
-        else {
-            try {
-                val d = file.contentType?.split("/")
-                if(d != null)
-                    if(UploadHelper(d[0]).save(file)){
-                        response[d[0]] = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                .path(ClassPathResource("${d[0]}/").path)
-                                .path(file.originalFilename.toString())
-                                .toUriString()
-
-                        response["status"] = true
-                        response["message"] = "${d[0]} uploaded successfully!"
-
-                    }
-            }catch (e: Exception){
-                response["status"] = false
-                response["message"] = e.message.toString()
-            }
-        }
-
-        return response
+    @GetMapping("/getAllFiles")
+    fun get(): HashMap<String, Any>{
+        return User().getAllFiles()
     }
 }
