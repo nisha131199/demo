@@ -1,21 +1,25 @@
 package com.example.demo.user
 
 import com.example.demo.helper.UploadHelper
+import com.example.demo.user.database.MySQLClass
 import com.example.demo.user.database.MySQLite
 import org.springframework.core.io.ClassPathResource
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.io.File
 import java.sql.ResultSet
 import java.sql.Statement
 import kotlin.collections.HashMap
 
 class User {
     private val res = HashMap<String, Any>()
-    private val db = MySQLite()
-    private val connection = db.connection()
-    private val statement = connection.createStatement() as Statement
+    private val db = MySQLClass()
 
     private fun isReadyToRegister(data: DataModel): String {
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         val msg = "new user"
 
         if (data.password.isNotBlank() && data.confirm_password.isNotBlank() && data.password != data.confirm_password)
@@ -32,10 +36,14 @@ class User {
             if (e.next())
                 return "username already taken"
         }
+        connection.close()
         return msg
     }
 
     fun register(data: DataModel): HashMap<String, Any> {
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         try {
             val msg = isReadyToRegister(data)
 
@@ -58,10 +66,16 @@ class User {
             res["status"] = false
             res["message"] = e.message.toString()
         }
+        finally {
+            connection.close()
+        }
         return res
     }
 
     fun update(data: DataModel): HashMap<String, Any> {
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         try {
             if (statement.executeUpdate("update user set first_name='${data.first_name}',middle_name='${data.middle_name}'," +
                             "last_name='${data.last_name}',email='${data.email}',phone_number='${data.phone_number}'," +
@@ -74,11 +88,16 @@ class User {
         } catch (e: Exception) {
             res["status"] = false
             res["message"] = "Error:${e.message}"
+        }finally {
+            connection.close()
         }
         return res
     }
 
     fun delete(uid:Int): HashMap<String, Any> {
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         try {
             if (statement.executeUpdate("delete from user where id=${uid}")>0) {
                 res["status"] = true
@@ -90,13 +109,18 @@ class User {
         } catch (e: Exception) {
             res["status"] = false
             res["message"] = "Error:${e.message}"
+        }finally {
+            connection.close()
         }
         return res
     }
 
     fun login(login:LoginModel): HashMap<String, Any> {
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         try {
-            val result=statement.executeQuery("select * from user where user_name='${login.userName}' and password='${login.password}'")
+            val result=statement.executeQuery("select * from user where user_name='${login.user_name}' and password='${login.password}'")
             if (result.next()) {
                 val data=HashMap<String,Any>()
 
@@ -119,12 +143,27 @@ class User {
         } catch (e: Exception) {
             res["status"] = false
             res["message"] = "Error:${e.message}"
+        }finally {
+            connection.close()
         }
         return res
     }
 
+    fun getUsers(): HashMap<String, Any>{
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
+        val result = statement.executeQuery("select * from user")
+        while (result.next()){
+            res[result.getString(1)] = result.getString(5) +" "+ result.getString(7)
+        }
+        connection.close()
+        return res
+    }
+
     fun uploadFile(file: MultipartFile): HashMap<String,Any>{
-        val statement = db.connectionFile().createStatement()
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
 
         val response: HashMap<String,Any> = HashMap()
         response["content-type"] = file.contentType.toString()
@@ -144,9 +183,9 @@ class User {
                                 .path(file.originalFilename.toString())
                                 .toUriString()
 
-                        val result = statement.executeQuery("select url from user_file where url='${v}'")
+                        val result = statement.executeQuery("select url from files where url='${v}'")
                         if(!result.next()){
-                            statement.execute("insert into user_file values('${file.originalFilename}','${v}')")
+                            statement.execute("insert into files values('${file.originalFilename}','${v}')")
                         }
 
                         response[d[0]] = v
@@ -157,25 +196,28 @@ class User {
             }catch (e: Exception){
                 response["status"] = false
                 response["message"] = e.message.toString()
+            }finally {
+                connection.close()
             }
         }
-
         return response
     }
 
     fun getAllFiles(): HashMap<String,Any>{
-        val statement = db.connectionFile().createStatement()
+        val connection = db.getSQLConnection()
+        val statement = connection.createStatement() as Statement
+
         val response: HashMap<String,Any> = HashMap()
-        val result = statement.executeQuery("select * from user_file")
+        val result = statement.executeQuery("select * from files")
         while(result.next()){
             response[result.getString(1)] = result.getString(2)
         }
-
+        connection.close()
         return response
     }
 }
 
-class LoginModel(var userName:String, var password:String)
+class LoginModel(var user_name:String, var password:String)
 
 data class DataModel(
         var id: Int?,

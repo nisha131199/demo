@@ -31,7 +31,7 @@ class Controller{
         return User().register(data)
     }
 
-    @PostMapping("/user/modify")
+    @PostMapping("/user/update")
     fun update(@RequestBody data: DataModel): HashMap<String, Any> {
         return User().update(data)
     }
@@ -41,7 +41,12 @@ class Controller{
         return User().login(credentials)
     }
 
-    @DeleteMapping("/user/remove")
+    @GetMapping("/user/allUsers")
+    fun getUsers(): HashMap<String, Any>{
+        return User().getUsers()
+    }
+
+    @DeleteMapping("/user/delete")
     fun delete(@RequestParam(value = "uid", defaultValue = "")uid:Int): HashMap<String, Any> {
         return User().delete(uid)
     }
@@ -51,7 +56,7 @@ class Controller{
         return User().uploadFile(file)
     }
 
-    @GetMapping("/getAllFiles")
+    @GetMapping("/getAllFile")
     fun get(): HashMap<String, Any>{
         return User().getAllFiles()
     }

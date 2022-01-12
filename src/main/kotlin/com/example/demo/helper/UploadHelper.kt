@@ -13,6 +13,7 @@ class UploadHelper(private val str: String) {
     fun save(file: MultipartFile): Boolean{
         try {
             url = ClassPathResource("static/${str}")
+            //url = "https://my-files-url-bucket.s3.us-east-2.amazonaws.com/"
             if(!url.isFile) {
                 val path = ClassPathResource("static")
                 File(path.uri.path+"/${str}").mkdirs()
@@ -21,7 +22,6 @@ class UploadHelper(private val str: String) {
                     Paths.get(url.file.absolutePath + File.separator + file.originalFilename),
                     StandardCopyOption.REPLACE_EXISTING)
             return true
-
         }catch (e: Exception){
             println(e.message)
         }
