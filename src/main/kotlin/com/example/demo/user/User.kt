@@ -150,21 +150,26 @@ class User {
     }
 
     fun getUsers(): HashMap<String, Any>{
-        val connection = db.getSQLConnection()
-        val statement = connection.createStatement() as Statement
+        try {
+            val connection = db.getSQLConnection()
+            val statement = connection.createStatement() as Statement
 
-        var firstName = ""
-        var lastName = ""
+            var firstName = ""
+            var lastName = ""
 
-        val result = statement.executeQuery("select * from user")
+            val result = statement.executeQuery("select * from user")
 
-        while (result.next()){
-            firstName = result.getString(2)
-            lastName = result.getString(4)
+            while (result.next()){
+                firstName = result.getString(2)
+                lastName = result.getString(4)
 
-            res["$firstName $lastName"] = UserData(result.getString(7),result.getString(5),result.getInt(1))
+                res["$firstName $lastName"] = UserData(result.getString(7),result.getString(5),result.getInt(1))
+            }
+            connection.close()
+        }catch (e: Exception){
+            res["message"] = e.message.toString()
         }
-        connection.close()
+
         return res
     }
 
