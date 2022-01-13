@@ -13,9 +13,9 @@ class MySQLClass {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance()
             ClassLoader.getSystemClassLoader()
         }catch (e: Exception){
-            println(e.message)
+            println(e.toString())
         } finally {
-            return DriverManager.getConnection("jdbc:mysql://mysql-database-1.cf7tlvfbvdxr.us-east-2.rds.amazonaws.com:3306/user_data", "admin123", "admin123")
+            return DriverManager.getConnection("mysql://mysql-database-1.cf7tlvfbvdxr.us-east-2.rds.amazonaws.com:3306/user_data", "admin123", "admin123")
         }
     }
 }
