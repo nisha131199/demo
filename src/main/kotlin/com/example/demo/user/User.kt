@@ -162,7 +162,7 @@ class User {
             firstName = result.getString(2)
             lastName = result.getString(4)
 
-            res[firstName+" "+lastName] = UserData(result.getString(7),result.getString(5),result.getInt(1))
+            res["$firstName $lastName"] = UserData(result.getString(7),result.getString(5),result.getInt(1))
         }
         connection.close()
         return res

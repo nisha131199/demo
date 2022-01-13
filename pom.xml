@@ -16,11 +16,6 @@
     <properties>
         <java.version>1.8</java.version>
         <kotlin.version>1.6.10</kotlin.version>
-        <property>
-            <name>javax.jdo.option.ConnectionDriverName</name>
-            <value>com.mysql.cj.jdbc.Driver</value>
-            <description>JDBC Driver class</description>
-        </property>
     </properties>
     <dependencies>
         <dependency>
