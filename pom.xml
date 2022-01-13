@@ -71,6 +71,12 @@
                         <artifactId>kotlin-maven-allopen</artifactId>
                         <version>${kotlin.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>8.0.27</version>
+                        <scope>runtime</scope>
+                    </dependency>
                 </dependencies>
             </plugin>
             <plugin>

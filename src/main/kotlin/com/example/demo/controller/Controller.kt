@@ -41,7 +41,7 @@ class Controller{
         return User().login(credentials)
     }
 
-    @GetMapping("/user/allUsers")
+    @GetMapping("/user/getAllUsers")
     fun getUsers(): HashMap<String, Any>{
         return User().getUsers()
     }
@@ -56,7 +56,7 @@ class Controller{
         return User().uploadFile(file)
     }
 
-    @GetMapping("/getAllFile")
+    @GetMapping("/getAllFiles")
     fun get(): HashMap<String, Any>{
         return User().getAllFiles()
     }

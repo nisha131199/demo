@@ -153,9 +153,16 @@ class User {
         val connection = db.getSQLConnection()
         val statement = connection.createStatement() as Statement
 
+        var firstName = ""
+        var lastName = ""
+
         val result = statement.executeQuery("select * from user")
+
         while (result.next()){
-            res[result.getString(1)] = result.getString(5) +" "+ result.getString(7)
+            firstName = result.getString(2)
+            lastName = result.getString(4)
+
+            res[firstName+" "+lastName] = UserData(result.getString(7),result.getString(5),result.getInt(1))
         }
         connection.close()
         return res
@@ -209,6 +216,7 @@ class User {
 
         val response: HashMap<String,Any> = HashMap()
         val result = statement.executeQuery("select * from files")
+
         while(result.next()){
             response[result.getString(1)] = result.getString(2)
         }
@@ -229,3 +237,9 @@ data class DataModel(
         var user_name: String,
         var password: String,
         var confirm_password: String)
+
+data class UserData(
+        val user_name: String,
+        val email: String,
+        val id: Int
+)
