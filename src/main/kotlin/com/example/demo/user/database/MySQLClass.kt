@@ -10,7 +10,7 @@ class MySQLClass {
     @Throws(SQLException::class)
     fun getSQLConnection(): Connection {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance()
+            //Class.forName("com.mysql.cj.jdbc.Driver").newInstance()
             ClassLoader.getSystemClassLoader()
         }catch (e: Exception){
             println(e.message.toString())
