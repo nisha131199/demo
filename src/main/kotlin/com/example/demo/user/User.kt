@@ -158,18 +158,18 @@ class User {
             var lastName = ""
 
             val result = statement.executeQuery("select * from user")
+            var count = 1
 
             while (result.next()){
                 firstName = result.getString(2)
                 lastName = result.getString(4)
 
-                res["$firstName $lastName"] = UserData(result.getString(7),result.getString(5),result.getInt(1))
+                res["user ${count++}"] = UserData(result.getInt(1), "$firstName $lastName",result.getString(7),result.getString(5))
             }
             connection.close()
         }catch (e: Exception){
             res["message"] = e.message.toString()
         }
-
         return res
     }
 
@@ -222,8 +222,10 @@ class User {
         val response: HashMap<String,Any> = HashMap()
         val result = statement.executeQuery("select * from files")
 
+        var count = 0
+
         while(result.next()){
-            response[result.getString(1)] = result.getString(2)
+            response["${++count}"] = FileData(result.getString(1), result.getString(2))
         }
         connection.close()
         return response
@@ -244,7 +246,13 @@ data class DataModel(
         var confirm_password: String)
 
 data class UserData(
+        val id: Int,
+        val name: String,
         val user_name: String,
-        val email: String,
-        val id: Int
+        val email: String
+)
+
+data class FileData(
+        val name: String,
+        val url: String
 )
